@@ -40,31 +40,44 @@ const puppeteer_1 = __importDefault(require("puppeteer"));
 const cheerio = __importStar(require("cheerio"));
 class Kabum {
     constructor() {
-        this.URL = "https://www.kabum.com.br/tv";
+        this.NAME = 'KABUM';
+        this.WEBSITE = 'https://www.kabum.com.br/';
     }
-    openPage() {
+    getHTMLContent(url) {
         return __awaiter(this, void 0, void 0, function* () {
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
-            yield page.goto(this.URL);
+            yield page.goto(url);
             const content = yield page.content();
-            const $ = cheerio.load(content);
-            let arr = [];
-            $('.priceCard').map(function () {
-                arr.push($(this).text());
+            yield page.close();
+            return content;
+        });
+    }
+    search(product_name, page, page_size) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `https://www.kabum.com.br/busca/${product_name}?page_number=${page}&page_size=${page_size}&facet_filters=&sort=most_searched`;
+            console.log(`Starting product searching from ${query}. This can take a while...`);
+            const $ = cheerio.load(yield this.getHTMLContent(query));
+            const result = $('.productCard').get().map((e) => {
+                var _a, _b;
+                return ({
+                    shop: this.NAME,
+                    website: this.WEBSITE,
+                    title: $(e).find('.sc-d79c9c3f-0').text().trim(),
+                    value: $(e).find('.sc-620f2d27-2').text().trim(),
+                    product_id: (_a = $(e).find('.sc-ba2ba4a7-10').attr('data-smarthintproductid')) === null || _a === void 0 ? void 0 : _a.trim(),
+                    source_img: (_b = $(e).find('img').attr('src')) === null || _b === void 0 ? void 0 : _b.trim()
+                });
             });
-            yield browser.close();
-            return yield arr;
+            console.log("Searching completed");
+            return result;
         });
     }
 }
 const teste = new Kabum();
-teste.openPage()
-    .then(result => {
-    console.log(result);
-})
-    .catch(err => {
-    console.log(err);
+teste.search('samsung', 1, 1)
+    .then((res) => {
+    console.log(res);
 });
 class Ecommerce {
     constructor(ecommerce_name, links) {

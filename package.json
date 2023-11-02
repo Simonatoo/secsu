@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec ts-node src/index.ts"
+    "start": "nodemon --exec ts-node src/index.ts",
+    "test": "npx tsc && node src/ecommerceBuilder.js"
   },
   "author": "Guilherme Simonato",
   "license": "ISC",
