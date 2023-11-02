@@ -53,6 +53,25 @@ class Kabum {
             return content;
         });
     }
+    get(product_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `https://www.kabum.com.br/produto/${product_id}`;
+            console.log(`Starting product searching from ${query}. This can take a while...`);
+            const $ = cheerio.load(yield this.getHTMLContent(query));
+            const result = $('main').get().map((e) => {
+                var _a;
+                return ({
+                    shop: this.NAME,
+                    website: this.WEBSITE,
+                    title: $(e).find('.sc-89bddf0f-6').text().trim(),
+                    value: $(e).find('.sc-5492faee-2').text().trim(),
+                    source_img: (_a = $(e).find(`.image img`).attr('src')) === null || _a === void 0 ? void 0 : _a.trim()
+                });
+            });
+            console.log("Searching completed");
+            return result;
+        });
+    }
     search(product_name, page, page_size) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = `https://www.kabum.com.br/busca/${product_name}?page_number=${page}&page_size=${page_size}&facet_filters=&sort=most_searched`;
@@ -75,7 +94,7 @@ class Kabum {
     }
 }
 const teste = new Kabum();
-teste.search('samsung', 1, 1)
+teste.get(`420367`)
     .then((res) => {
     console.log(res);
 });

@@ -19,6 +19,26 @@ class Kabum {
         return content;
     }
 
+    async get(product_id:string) {
+        const query = `https://www.kabum.com.br/produto/${product_id}`;
+        
+        console.log(`Starting product searching from ${query}. This can take a while...`)
+        
+        const $ = cheerio.load(await this.getHTMLContent(query));
+        
+        const result = $('main').get().map( (e) => ({
+            shop: this.NAME,
+            website: this.WEBSITE,
+            title: $(e).find('.sc-89bddf0f-6').text().trim(),
+            value: $(e).find('.sc-5492faee-2').text().trim(),
+            source_img: $(e).find(`.image img`).attr('src')?.trim()
+        }));
+
+        console.log("Searching completed");
+        
+        return result;
+    }
+
     async search(product_name:string, page:number, page_size:number) {
         const query = `https://www.kabum.com.br/busca/${product_name}?page_number=${page}&page_size=${page_size}&facet_filters=&sort=most_searched`;
         
@@ -43,7 +63,7 @@ class Kabum {
 
 const teste = new Kabum();
 
-teste.search('samsung',1,1)
+teste.get(`420367`)
 .then((res)=>{
     console.log(res);
 })
